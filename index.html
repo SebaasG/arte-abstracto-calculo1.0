@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Integral Art — UDES · Cálculo Integral</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --udes-navy:    #002F6C;
+  --udes-blue:    #004EA2;
+  --udes-sky:     #0071CE;
+  --udes-gold:    #E8901A;
+  --udes-gold-lt: #F5BA5A;
+  --bg:           #F4F6FA;
+  --surface:      #FFFFFF;
+  --surface2:     #EDF1F8;
+  --border:       #CBD5E8;
+  --text:         #0D1B2E;
+  --muted:        #5B6B82;
+  --danger:       #BF3030;
+  --serif: 'DM Serif Display', Georgia, serif;
+  --mono:  'DM Mono', 'Courier New', monospace;
+  --r: 10px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: var(--mono); font-size: 14px;
+  line-height: 1.6; min-height: 100vh;
+  display: flex; flex-direction: column;
+}
+.topbar {
+  background: var(--udes-navy); padding: .65rem 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: 0 2px 16px rgba(0,30,80,.4); position: sticky; top: 0; z-index: 100;
+}
+.tb-brand { display: flex; align-items: center; gap: .9rem; }
+.tb-logo {
+  width: 34px; height: 34px; background: var(--udes-gold); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--serif); font-size: .95rem; color: var(--udes-navy); font-weight: 700; flex-shrink: 0;
+}
+.tb-title { font-family: var(--serif); font-size: 1.1rem; color: #fff; }
+.tb-title em { font-style: italic; color: var(--udes-gold-lt); }
+.tb-badge {
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18);
+  border-radius: 20px; color: rgba(255,255,255,.75);
+  font-size: .6rem; letter-spacing: .12em; padding: .22rem .75rem; text-transform: uppercase;
+}
+.main { display: grid; grid-template-columns: 340px 1fr; flex: 1; }
+.sidebar {
+  background: var(--surface); border-right: 1px solid var(--border);
+  padding: 1.7rem 1.5rem; display: flex; flex-direction: column;
+  gap: 1.5rem; overflow-y: auto;
+}
+.sec-lbl {
+  font-size: .58rem; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--udes-blue); font-weight: 500; margin-bottom: .65rem;
+  display: flex; align-items: center; gap: .5rem;
+}
+.sec-lbl::after { content:''; flex:1; height:1px; background: var(--border); }
+.int-preview {
+  background: linear-gradient(135deg, var(--udes-navy), var(--udes-blue));
+  border-radius: var(--r); padding: 1rem 1.3rem; text-align: center; position: relative; overflow: hidden;
+}
+.int-preview::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 75% 50%, rgba(232,144,26,.15), transparent 55%);
+}
+.int-expr { font-family: var(--serif); font-size: 1.3rem; color: #fff; position: relative; }
+.int-result {
+  font-family: var(--mono); font-size: .7rem; color: var(--udes-gold-lt);
+  margin-top: .25rem; position: relative; min-height: 1.1em; transition: all .3s;
+}
+.field { display: flex; flex-direction: column; gap: .38rem; margin-bottom: .7rem; }
+.field-lbl { font-size: .6rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+.field-hint { font-size: .6rem; color: var(--muted); margin-top: .1rem; }
+input[type="text"], input[type="number"] {
+  background: var(--surface2); border: 1.5px solid var(--border); border-radius: 6px;
+  color: var(--text); font-family: var(--mono); font-size: .86rem;
+  padding: .6rem .85rem; outline: none; transition: border-color .18s, box-shadow .18s; width: 100%;
+}
+input:focus { border-color: var(--udes-blue); box-shadow: 0 0 0 3px rgba(0,78,162,.1); }
+.limits-row { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; }
+.ex-grid { display: flex; flex-wrap: wrap; gap: .38rem; }
+.ex-btn {
+  background: var(--surface2); border: 1.5px solid var(--border); border-radius: 20px;
+  color: var(--udes-blue); cursor: pointer; font-family: var(--mono);
+  font-size: .62rem; padding: .24rem .65rem; transition: all .14s;
+}
+.ex-btn:hover { background: var(--udes-navy); border-color: var(--udes-navy); color: #fff; }
+.btn-calc {
+  background: linear-gradient(135deg, var(--udes-navy), var(--udes-blue));
+  border: none; border-radius: var(--r); color: #fff; cursor: pointer;
+  font-family: var(--mono); font-size: .78rem; font-weight: 500;
+  letter-spacing: .08em; padding: .88rem; text-transform: uppercase;
+  transition: opacity .2s, transform .1s, box-shadow .2s; width: 100%;
+  box-shadow: 0 4px 16px rgba(0,47,108,.3);
+  display: flex; align-items: center; justify-content: center; gap: .6rem;
+}
+.btn-calc:hover { box-shadow: 0 6px 22px rgba(0,47,108,.45); opacity: .93; }
+.btn-calc:active { transform: scale(.98); }
+.btn-calc:disabled { opacity: .38; cursor: not-allowed; transform: none; }
+.err {
+  background: #FEF0EF; border: 1.5px solid #E0A0A0; border-radius: 6px;
+  color: var(--danger); font-size: .72rem; line-height: 1.5; padding: .65rem .85rem; display: none;
+}
+.results {
+  background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--r);
+  padding: 1rem 1.1rem; display: none; flex-direction: column; gap: .65rem;
+  animation: fadeUp .3s ease;
+}
+@keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+.r-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: .5rem; padding-bottom: .5rem; border-bottom: 1px solid var(--border);
+}
+.r-row:last-child { border: none; padding-bottom: 0; }
+.r-key { font-size: .6rem; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+.r-val { font-size: .8rem; color: var(--udes-blue); text-align: right; word-break: break-all; }
+.r-val.big { font-family: var(--serif); font-size: 1.45rem; line-height: 1; }
+.chips { display: grid; grid-template-columns: 1fr 1fr; gap: .45rem; }
+.chip { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: .42rem .6rem; }
+.chip-k { font-size: .55rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+.chip-v { font-size: .8rem; color: var(--text); font-weight: 500; margin-top: .05rem; }
+.swatch { width: 100%; height: 4px; border-radius: 2px; margin-top: .28rem; }
+
+/* ═══ CANVAS ZONA ══════════════════════════════════ */
+.canvas-zone {
+  background: var(--bg); display: flex; flex-direction: column;
+  align-items: center; padding: 1.4rem 2rem 2rem; gap: 1rem;
+}
+.toolbar {
+  width: 100%; max-width: 720px; display: flex;
+  align-items: center; justify-content: flex-end; gap: .5rem; flex-wrap: wrap;
+}
+.tool-btn {
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: 6px;
+  color: var(--muted); cursor: pointer; font-family: var(--mono); font-size: .68rem;
+  padding: .38rem .75rem; transition: all .14s; display: flex; align-items: center; gap: .3rem;
+}
+.tool-btn:hover { border-color: var(--udes-blue); color: var(--udes-blue); background: var(--surface2); }
+.tool-btn.on { background: var(--udes-navy); border-color: var(--udes-navy); color: #fff; }
+.tool-btn:disabled { opacity: .35; cursor: not-allowed; }
+.btn-export {
+  background: var(--udes-gold); border: none; border-radius: 6px; color: var(--udes-navy);
+  cursor: pointer; font-family: var(--mono); font-size: .7rem; font-weight: 500;
+  padding: .42rem .95rem; display: flex; align-items: center; gap: .38rem;
+  transition: all .16s; box-shadow: 0 2px 10px rgba(232,144,26,.35);
+}
+.btn-export:hover { background: var(--udes-gold-lt); box-shadow: 0 4px 16px rgba(232,144,26,.5); transform: translateY(-1px); }
+.btn-export:disabled { opacity: .35; cursor: not-allowed; transform: none; }
+.canvas-wrap { position: relative; width: 100%; max-width: 720px; }
+#artCanvas {
+  background: #04050A; border-radius: 14px; display: block; width: 100%; height: auto;
+  box-shadow: 0 0 0 1px rgba(0,47,108,.12), 0 14px 56px rgba(0,0,0,.35);
+  transition: box-shadow .25s;
+}
+#artCanvas:hover { box-shadow: 0 0 0 2px var(--udes-blue), 0 14px 56px rgba(0,0,0,.35); }
+.ph {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: .6rem;
+  pointer-events: none; border-radius: 14px; background: rgba(4,5,10,.97); transition: opacity .4s;
+}
+.ph.gone { opacity: 0; pointer-events: none; }
+.ph-sym { font-family: var(--serif); font-size: 5.5rem; color: rgba(255,255,255,.07); line-height: 1; }
+.ph-txt { font-size: .7rem; color: rgba(255,255,255,.28); text-align: center; line-height: 1.8; }
+.ph-txt em { color: rgba(255,255,255,.45); font-style: italic; }
+.spin {
+  display: none; position: absolute; inset: 0; align-items: center; justify-content: center;
+  flex-direction: column; gap: .85rem; background: rgba(4,5,10,.82); border-radius: 14px;
+}
+.spin.on { display: flex; }
+.spin-ring {
+  width: 40px; height: 40px; border: 2px solid rgba(255,255,255,.08);
+  border-top-color: var(--udes-gold); border-radius: 50%; animation: rot .7s linear infinite;
+}
+@keyframes rot { to { transform: rotate(360deg); } }
+.spin-txt { font-size: .65rem; color: rgba(255,255,255,.45); letter-spacing: .12em; text-transform: uppercase; }
+.footer {
+  background: var(--udes-navy); padding: .9rem 2rem; text-align: center;
+  font-size: .62rem; color: rgba(255,255,255,.45); letter-spacing: .05em;
+}
+.footer strong { color: var(--udes-gold-lt); }
+@media (max-width: 820px) {
+  .main { grid-template-columns: 1fr; }
+  .sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+  .canvas-zone { padding: 1.2rem; }
+}
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="tb-brand">
+    <div class="tb-logo">U</div>
+    <span class="tb-title">Integral <em>Art</em></span>
+  </div>
+  <span class="tb-badge">UDES · Cálculo Integral</span>
+</header>
+
+<div class="main">
+  <aside class="sidebar">
+    <div class="int-preview">
+      <div class="int-expr">∫ <span id="ipF">f(x)</span> dx</div>
+      <div class="int-result" id="ipR">ingresa los datos →</div>
+    </div>
+    <div>
+      <p class="sec-lbl">Función f(x)</p>
+      <div class="field">
+        <label class="field-lbl" for="funcInput">Expresión matemática</label>
+        <input type="text" id="funcInput" placeholder="x^2*cos(x)" value="x^2*cos(x)" autocomplete="off" spellcheck="false"/>
+        <p class="field-hint">Operadores: ^ &nbsp;* &nbsp;/ &nbsp;&nbsp;|&nbsp;&nbsp; Funciones: sin cos tan exp log sqrt pi e</p>
+      </div>
+    </div>
+    <div>
+      <p class="sec-lbl">Límites de integración</p>
+      <div class="limits-row">
+        <div class="field">
+          <label class="field-lbl" for="aInput">a &nbsp;(inferior)</label>
+          <input type="number" id="aInput" value="0" step="any"/>
+        </div>
+        <div class="field">
+          <label class="field-lbl" for="bInput">b &nbsp;(superior)</label>
+          <input type="number" id="bInput" value="5" step="any"/>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p class="sec-lbl">Ejemplos rápidos</p>
+      <div class="ex-grid">
+        <button class="ex-btn" data-f="sin(x)"        data-a="0"  data-b="3.14159">sin(x), [0,π]</button>
+        <button class="ex-btn" data-f="x^3"           data-a="-2" data-b="2">x³, [−2,2]</button>
+        <button class="ex-btn" data-f="exp(-x^2)"     data-a="-3" data-b="3">e^(−x²)</button>
+        <button class="ex-btn" data-f="x*sin(x)"      data-a="0"  data-b="10">x·sin(x)</button>
+        <button class="ex-btn" data-f="cos(x^2)"      data-a="0"  data-b="4">cos(x²)</button>
+        <button class="ex-btn" data-f="1/x"           data-a="1"  data-b="7">1/x, [1,7]</button>
+        <button class="ex-btn" data-f="sqrt(1-x^2)"   data-a="-1" data-b="1">√(1−x²)</button>
+        <button class="ex-btn" data-f="x^2*exp(-x)"   data-a="0"  data-b="8">x²·e^(−x)</button>
+        <button class="ex-btn" data-f="x^4-5*x^2+4"   data-a="-3" data-b="3">x⁴−5x²+4</button>
+        <button class="ex-btn" data-f="sin(x)*cos(x)" data-a="0"  data-b="6">sin·cos</button>
+      </div>
+    </div>
+    <button class="btn-calc" id="calcBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+      </svg>
+      Calcular Integral → Generar Arte
+    </button>
+    <div class="err" id="errBox"></div>
+    <div class="results" id="resultsBox">
+      <p class="sec-lbl" style="margin-bottom:0">Resultado numérico</p>
+      <div class="r-row">
+        <span class="r-key">f(x) interpretada</span>
+        <span class="r-val" id="rF">—</span>
+      </div>
+      <div class="r-row">
+        <span class="r-key">Valor de la integral</span>
+        <span class="r-val big" id="rA">—</span>
+      </div>
+      <div class="r-row">
+        <span class="r-key">Intervalo</span>
+        <span class="r-val" id="rI">—</span>
+      </div>
+      <p class="sec-lbl" style="margin-top:.35rem;margin-bottom:.5rem">Parámetros visuales derivados</p>
+      <div class="chips" id="chipsGrid"></div>
+    </div>
+  </aside>
+
+  <section class="canvas-zone">
+    <div class="toolbar">
+      <button class="tool-btn" id="btnAnim" disabled>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Animar
+      </button>
+      <button class="tool-btn" id="btnBg" disabled title="Alternar fondo oscuro / claro">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        Fondo
+      </button>
+      <button class="btn-export" id="btnPNG" disabled>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Exportar PNG
+      </button>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="artCanvas" width="800" height="800"></canvas>
+      <div class="ph" id="ph">
+        <div class="ph-sym">∫</div>
+        <p class="ph-txt">Ingresa una función, define los límites<br>y presiona <em>Calcular y Generar Arte</em></p>
+      </div>
+      <div class="spin" id="spinEl">
+        <div class="spin-ring"></div>
+        <span class="spin-txt">Calculando integral…</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer class="footer">
+  <strong>Universidad de Santander — UDES</strong> &nbsp;·&nbsp;
+  Arte desde la Integral Definida &nbsp;·&nbsp; Cálculo Integral
+</footer>
+
+<script>
+const API = '/api/integrate';
+const funcIn  = document.getElementById('funcInput');
+const aIn     = document.getElementById('aInput');
+const bIn     = document.getElementById('bInput');
+const calcBtn = document.getElementById('calcBtn');
+const errBox  = document.getElementById('errBox');
+const results = document.getElementById('resultsBox');
+const rF      = document.getElementById('rF');
+const rA      = document.getElementById('rA');
+const rI      = document.getElementById('rI');
+const chips   = document.getElementById('chipsGrid');
+const cvs     = document.getElementById('artCanvas');
+const ctx     = cvs.getContext('2d');
+const ph      = document.getElementById('ph');
+const spinEl  = document.getElementById('spinEl');
+const ipF     = document.getElementById('ipF');
+const ipR     = document.getElementById('ipR');
+const btnPNG  = document.getElementById('btnPNG');
+const btnAnim = document.getElementById('btnAnim');
+const btnBg   = document.getElementById('btnBg');
+
+let area = null, params = null, animOn = false, raf = null, animT = 0, darkBg = true;
+
+funcIn.addEventListener('input', () => {
+  ipF.textContent = funcIn.value || 'f(x)';
+  ipR.textContent = 'ingresa los datos →';
+});
+document.querySelectorAll('.ex-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    funcIn.value = b.dataset.f; aIn.value = b.dataset.a; bIn.value = b.dataset.b;
+    ipF.textContent = b.dataset.f; ipR.textContent = 'ingresa los datos →';
+  });
+});
+
+/* ══ DERIVACIÓN DE PARÁMETROS ══ */
+function derive(A) {
+  const abs = Math.abs(A), sgn = A >= 0 ? 1 : -1;
+  return {
+    layers: Math.max(5,  Math.floor(abs / 2) % 14 + 7),
+    pts:    Math.max(150, Math.floor(abs * 4) % 320 + 140),
+    angle:  (abs * 0.37) % (2 * Math.PI),
+    amp:    ((abs % 180) + 55),
+    freq:   ((abs * 0.05) % 5.5) + 0.8,
+    hue:    (A * 33) % 360,
+    sat:    Math.min(98, 65 + (abs % 35)),
+    lit:    Math.min(72, 48 + (abs % 22)),
+    lw:     Math.log(abs + 2) * 2.6 + 1.4,
+    radius: ((abs % 240) + 90),
+    sf:     ((abs * 0.007) % 0.45) + 0.06,
+    alpha:  Math.min(0.9, 0.42 + (abs % 100) / 200),
+    hstep:  360 / Math.max(4, Math.floor(abs / 3) % 22 + 6),
+    sgn, pat: Math.floor(abs / 50) % 4,
+  };
+}
+
+const PAT_NAMES = ['Espiral Armónica', 'Lemniscatas', 'Lissajous', 'Epiciclos'];
+
+function draw(A, t = 0) {
+  const W = cvs.width, H = cvs.height, cx = W/2, cy = H/2;
+  const p = derive(A);
+
+  ctx.fillStyle = darkBg ? '#04050A' : '#F2F5FB';
+  ctx.fillRect(0, 0, W, H);
+
+  // Viñeta suave
+  const vig = ctx.createRadialGradient(cx, cy, W*.28, cx, cy, W*.72);
+  vig.addColorStop(0, 'transparent');
+  vig.addColorStop(1, darkBg ? 'rgba(0,0,0,.5)' : 'rgba(215,220,238,.45)');
+  ctx.fillStyle = vig; ctx.fillRect(0, 0, W, H);
+
+  switch (p.pat) {
+    case 0: drawSpiral(p, cx, cy, t);     break;
+    case 1: drawLemniscata(p, cx, cy, t); break;
+    case 2: drawLissajous(p, cx, cy, t);  break;
+    case 3: drawEpicycle(p, cx, cy, t);   break;
+  }
+  glowCenter(p, cx, cy);
+
+  ctx.save();
+  ctx.font = "11px 'DM Mono', monospace";
+  ctx.fillStyle = darkBg ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.06)';
+  ctx.fillText(`∫ f(x) dx = ${A.toFixed(4)}  ·  UDES`, 16, H - 14);
+  ctx.restore();
+}
+
+function drawSpiral(p, cx, cy, t) {
+  for (let l = 0; l < p.layers; l++) {
+    const h = ((p.hue + l * p.hstep + t * 60) % 360 + 360) % 360;
+    ctx.beginPath();
+    ctx.strokeStyle = `hsla(${h},${p.sat}%,${p.lit}%,${p.alpha})`;
+    ctx.lineWidth = p.lw; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    for (let i = 0; i <= p.pts; i++) {
+      const ang = (i/p.pts)*Math.PI*2*p.freq;
+      const r = p.radius*(.2+.8*(i/p.pts));
+      const d = p.amp*Math.sin(ang*(l+1)+p.angle+t)*p.sgn;
+      const x = cx+(r+d)*Math.cos(ang+l*p.hstep*.017+t*.3);
+      const y = cy+(r+d)*Math.sin(ang+l*p.hstep*.017+t*.3);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    // Capa brillo
+    ctx.beginPath();
+    ctx.strokeStyle = `hsla(${h},100%,${Math.min(92,p.lit+25)}%,${p.alpha*.4})`;
+    ctx.lineWidth = p.lw*.28;
+    for (let i = 0; i <= p.pts; i++) {
+      const ang = (i/p.pts)*Math.PI*2*p.freq;
+      const r = p.radius*(.2+.8*(i/p.pts));
+      const d = p.amp*Math.sin(ang*(l+1)+p.angle+t)*p.sgn;
+      const x = cx+(r+d)*Math.cos(ang+l*p.hstep*.017+t*.3);
+      const y = cy+(r+d)*Math.sin(ang+l*p.hstep*.017+t*.3);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+}
+
+function drawLemniscata(p, cx, cy, t) {
+  const N = p.layers * 3;
+  for (let l = 0; l < N; l++) {
+    const h = ((p.hue+l*(360/N)+t*80)%360+360)%360;
+    const rot = (l/N)*Math.PI*p.sgn+p.angle+t*.4;
+    const sc = p.radius*(.3+.7*(l/N));
+    ctx.beginPath();
+    ctx.strokeStyle = `hsla(${h},${p.sat}%,${p.lit}%,${p.alpha})`;
+    ctx.lineWidth = p.lw*.95; ctx.lineCap = 'round';
+    for (let i = 0; i <= p.pts*2; i++) {
+      const ang = (i/(p.pts*2))*Math.PI*2;
+      const d = 1+Math.sin(ang)**2;
+      const x0 = sc*Math.cos(ang)/d, y0 = sc*Math.sin(ang)*Math.cos(ang)/d;
+      const x = cx+x0*Math.cos(rot)-y0*Math.sin(rot);
+      const y = cy+x0*Math.sin(rot)+y0*Math.cos(rot);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+}
+
+function drawLissajous(p, cx, cy, t) {
+  const fA = Math.max(1, Math.round(p.freq));
+  const fB = Math.max(1, fA+1);
+  for (let l = 0; l < p.layers; l++) {
+    const h = ((p.hue+l*p.hstep+t*50)%360+360)%360;
+    const delta = p.angle+l*.31+t*.5;
+    const rx = p.radius*(.5+l*p.sf), ry = p.amp*(.55+l*.05*p.sgn);
+    ctx.beginPath();
+    ctx.strokeStyle = `hsla(${h},${p.sat}%,${p.lit}%,${p.alpha})`;
+    ctx.lineWidth = p.lw; ctx.lineCap = 'round';
+    for (let i = 0; i <= p.pts; i++) {
+      const ang = (i/p.pts)*Math.PI*2;
+      const x = cx+rx*Math.sin(fA*ang+delta), y = cy+ry*Math.sin(fB*ang);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.strokeStyle = `hsla(${h},100%,${Math.min(92,p.lit+22)}%,${p.alpha*.35})`;
+    ctx.lineWidth = p.lw*.25;
+    for (let i = 0; i <= p.pts; i++) {
+      const ang = (i/p.pts)*Math.PI*2;
+      const x = cx+rx*Math.sin(fA*ang+delta), y = cy+ry*Math.sin(fB*ang);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+}
+
+function drawEpicycle(p, cx, cy, t) {
+  const petals = Math.max(3, Math.round(p.freq*2));
+  for (let l = 0; l < p.layers; l++) {
+    const h = ((p.hue+l*p.hstep+t*40)%360+360)%360;
+    const R = p.radius+l*p.amp*.09*p.sgn, rot = p.angle+l*.18+t*.35;
+    ctx.beginPath();
+    ctx.fillStyle = `hsla(${h},${p.sat}%,${p.lit}%,${p.alpha*.14})`;
+    for (let i = 0; i <= p.pts*petals; i++) {
+      const ang = (i/(p.pts*petals))*Math.PI*2;
+      const r = R*Math.abs(Math.cos(petals*ang));
+      const x = cx+r*Math.cos(ang+rot), y = cy+r*Math.sin(ang+rot);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.strokeStyle = `hsla(${h},${p.sat}%,${p.lit}%,${p.alpha})`;
+    ctx.lineWidth = p.lw; ctx.lineCap = 'round';
+    for (let i = 0; i <= p.pts*petals; i++) {
+      const ang = (i/(p.pts*petals))*Math.PI*2;
+      const r = R*Math.abs(Math.cos(petals*ang));
+      const x = cx+r*Math.cos(ang+rot), y = cy+r*Math.sin(ang+rot);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+}
+
+function glowCenter(p, cx, cy) {
+  const h = ((p.hue%360)+360)%360;
+  const g1 = ctx.createRadialGradient(cx,cy,0,cx,cy,120);
+  g1.addColorStop(0,`hsla(${h},80%,75%,.35)`);
+  g1.addColorStop(.55,`hsla(${h},65%,60%,.14)`);
+  g1.addColorStop(1,'transparent');
+  ctx.beginPath(); ctx.arc(cx,cy,120,0,Math.PI*2);
+  ctx.fillStyle = g1; ctx.fill();
+  const g2 = ctx.createRadialGradient(cx,cy,0,cx,cy,30);
+  g2.addColorStop(0,`hsla(${(h+40)%360},95%,94%,.9)`);
+  g2.addColorStop(1,'transparent');
+  ctx.beginPath(); ctx.arc(cx,cy,30,0,Math.PI*2);
+  ctx.fillStyle = g2; ctx.fill();
+}
+
+function startAnim() {
+  animOn = true; btnAnim.classList.add('on');
+  btnAnim.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg> Detener`;
+  (function loop() { animT += 0.013; draw(area, animT); raf = requestAnimationFrame(loop); })();
+}
+function stopAnim() {
+  animOn = false; cancelAnimationFrame(raf); btnAnim.classList.remove('on');
+  btnAnim.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> Animar`;
+  if (area !== null) draw(area, 0);
+}
+btnAnim.addEventListener('click', () => animOn ? stopAnim() : startAnim());
+btnBg.addEventListener('click', () => {
+  darkBg = !darkBg; btnBg.classList.toggle('on', !darkBg);
+  if (area !== null && !animOn) draw(area, 0);
+});
+btnPNG.addEventListener('click', () => {
+  if (area === null) return;
+  const was = animOn; if (animOn) stopAnim(); draw(area, 0);
+  const safe = funcIn.value.replace(/[^a-z0-9]/gi,'_').slice(0,18);
+  const link = document.createElement('a');
+  link.download = `integral_art_UDES_${safe}_${area.toFixed(3)}.png`;
+  link.href = cvs.toDataURL('image/png'); link.click();
+  if (was) startAnim();
+});
+
+function renderChips(p) {
+  const h = ((p.hue%360)+360)%360;
+  const rows = [
+    ['Patrón', PAT_NAMES[p.pat]], ['Capas', p.layers],
+    ['Puntos/curva', p.pts], ['Amplitud', p.amp.toFixed(1)],
+    ['Frecuencia', p.freq.toFixed(2)], ['Grosor trazo', p.lw.toFixed(3)],
+    ['Radio', p.radius.toFixed(1)], ['Color (hue)', `${h.toFixed(0)}°`],
+  ];
+  chips.innerHTML = rows.map(([k,v],i) => {
+    const sw = k==='Color (hue)' ? `<div class="swatch" style="background:hsl(${h},${p.sat}%,${p.lit}%)"></div>` : '';
+    return `<div class="chip" style="animation-delay:${i*35}ms"><div class="chip-k">${k}</div><div class="chip-v">${v}</div>${sw}</div>`;
+  }).join('');
+}
+function enable() { [btnPNG, btnAnim, btnBg].forEach(b => b.disabled = false); }
+
+calcBtn.addEventListener('click', async () => {
+  errBox.style.display = 'none'; results.style.display = 'none';
+  const func = funcIn.value.trim(), a = aIn.value.trim(), b = bIn.value.trim();
+  if (!func || a==='' || b==='') { showErr('Por favor completa todos los campos.'); return; }
+  if (animOn) stopAnim(); animT = 0;
+  calcBtn.disabled = true; spinEl.classList.add('on');
+  try {
+    const res = await fetch(API, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({func, a:parseFloat(a), b:parseFloat(b)}),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error en el servidor.');
+    area = data.area; params = derive(area);
+    ipR.textContent = `= ${area.toFixed(6)}`;
+    rF.textContent = data.func_interpreted;
+    rA.textContent = area.toFixed(6);
+    rI.textContent = `[${data.a}, ${data.b}]`;
+    results.style.display = 'flex'; renderChips(params);
+    draw(area, 0); ph.classList.add('gone'); enable();
+  } catch(e) {
+    showErr(e.message.includes('fetch')
+      ? '¿Está corriendo el backend? Ejecuta: python app.py (puerto 5000)' : e.message);
+  } finally { calcBtn.disabled = false; spinEl.classList.remove('on'); }
+});
+function showErr(m) { errBox.textContent = `⚠  ${m}`; errBox.style.display = 'block'; }
+ipF.textContent = funcIn.value;
+</script>
+</body>
+</html>
